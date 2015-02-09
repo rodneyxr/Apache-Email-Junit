@@ -7,7 +7,9 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 
 import org.junit.Before;
@@ -22,9 +24,9 @@ import org.junit.rules.ExpectedException;
 // Email addReplyTo(String email, String name)
 // void buildMimeMessage()
 // String getHostName()
+// Session getMailSession()
 
 // ============= Fail =============
-// Session getMailSession()
 // Date getSentDate()
 // int getSocketConnectionTimeout()
 // String send()
@@ -63,7 +65,7 @@ public class EmailTest {
 		email.addBcc(VALID_TEST_EMAILS);
 
 		// assert expected results
-		assertEquals(email.getBccAddresses(), expectedList);
+		assertEquals(expectedList, email.getBccAddresses());
 	}
 
 	/**
@@ -83,7 +85,7 @@ public class EmailTest {
 		}
 
 		// assert expected results
-		assertEquals(email.getCcAddresses(), expectedList);
+		assertEquals(expectedList, email.getCcAddresses());
 	}
 
 	/**
@@ -107,7 +109,7 @@ public class EmailTest {
 		email.addHeader("Disposition-Notification-To", "user@domain.net");
 
 		// assert expected results
-		assertEquals(email.headers, expectedHeaders);
+		assertEquals(expectedHeaders, email.headers);
 	}
 
 	/**
@@ -127,7 +129,7 @@ public class EmailTest {
 		}
 
 		// assert expected results
-		assertEquals(email.getReplyToAddresses(), expectedAddresses);
+		assertEquals(expectedAddresses, email.getReplyToAddresses());
 	}
 
 	/**
@@ -165,12 +167,12 @@ public class EmailTest {
 	public void testGetHostName() throws Exception {
 		// create the expected hostname
 		String hostname = "test.hostname.com";
-		
+
 		// set mock hostname
 		email.setHostName(hostname);
-		
+
 		// assert hostname matches what was set
-		assertEquals(email.getHostName(), hostname);
+		assertEquals(hostname, email.getHostName());
 	}
 
 	/**
@@ -180,7 +182,17 @@ public class EmailTest {
 	 */
 	@Test
 	public void testGetMailSession() throws Exception {
-		fail("not yet implemented");
+		// create the expected session
+		Session expectedSession = Session.getInstance(new Properties());
+		
+		// assert the session is not null
+		assertTrue("Session is null", expectedSession != null);
+
+		// set the mock's session
+		email.setMailSession(expectedSession);
+		
+		// assert the expected session was returned by the mock
+		assertEquals(expectedSession, email.getMailSession());
 	}
 
 	/**
