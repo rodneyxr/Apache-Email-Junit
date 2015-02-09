@@ -26,13 +26,13 @@ import org.junit.rules.ExpectedException;
 // void buildMimeMessage()
 // String getHostName()
 // Session getMailSession()
-
+// Date getSentDate()
 // int getSocketConnectionTimeout()
 
-// ============= Fail =============
-// Date getSentDate()
-// String send()
 // Email setFrom(String email)
+
+// ============= Fail =============
+// String send()
 // void updateContentType(String aContentType)
 
 public class EmailTest {
@@ -265,7 +265,17 @@ public class EmailTest {
 	 */
 	@Test
 	public void testSetFrom() throws Exception {
-		fail("not yet implemented");
+		for (String address : VALID_TEST_EMAILS) {
+
+			// create expected InternetAddress
+			InternetAddress expectedAddress = new InternetAddress(address);
+
+			// set the sender address
+			email.setFrom(address);
+
+			// assert mock's fromAddress equals expected address
+			assertEquals(expectedAddress, email.getFromAddress());
+		}
 	}
 
 	/**
