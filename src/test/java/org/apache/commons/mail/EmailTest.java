@@ -26,9 +26,10 @@ import org.junit.rules.ExpectedException;
 // String getHostName()
 // Session getMailSession()
 
+// int getSocketConnectionTimeout()
+
 // ============= Fail =============
 // Date getSentDate()
-// int getSocketConnectionTimeout()
 // String send()
 // Email setFrom(String email)
 // void updateContentType(String aContentType)
@@ -184,13 +185,13 @@ public class EmailTest {
 	public void testGetMailSession() throws Exception {
 		// create the expected session
 		Session expectedSession = Session.getInstance(new Properties());
-		
+
 		// assert the session is not null
 		assertTrue("Session is null", expectedSession != null);
 
 		// set the mock's session
 		email.setMailSession(expectedSession);
-		
+
 		// assert the expected session was returned by the mock
 		assertEquals(expectedSession, email.getMailSession());
 	}
@@ -212,7 +213,17 @@ public class EmailTest {
 	 */
 	@Test
 	public void testGetSocketConnectionTimeout() throws Exception {
-		fail("not yet implemented");
+		// assert default timeout
+		assertEquals(EmailConstants.SOCKET_TIMEOUT_MS, email.getSocketConnectionTimeout());
+
+		// create the expected timeout
+		final int EXPECTED_TIMEOUT = 10000;
+
+		// change the mock's timeout
+		email.setSocketConnectionTimeout(EXPECTED_TIMEOUT);
+
+		// assert the mock returns the expected timeout
+		assertEquals(EXPECTED_TIMEOUT, email.getSocketConnectionTimeout());
 	}
 
 	/**
