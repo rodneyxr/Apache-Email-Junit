@@ -21,9 +21,9 @@ import org.junit.rules.ExpectedException;
 // void addHeader(String name, String value)
 // Email addReplyTo(String email, String name)
 // void buildMimeMessage()
+// String getHostName()
 
 // ============= Fail =============
-// String getHostName()
 // Session getMailSession()
 // Date getSentDate()
 // int getSocketConnectionTimeout()
@@ -163,7 +163,14 @@ public class EmailTest {
 	 */
 	@Test
 	public void testGetHostName() throws Exception {
-		fail("not yet implemented");
+		// create the expected hostname
+		String hostname = "test.hostname.com";
+		
+		// set mock hostname
+		email.setHostName(hostname);
+		
+		// assert hostname matches what was set
+		assertEquals(email.getHostName(), hostname);
 	}
 
 	/**
