@@ -1,23 +1,28 @@
 package org.apache.commons.mail;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 // ============= Pass =============
 // Email addBcc(String... emails)
-
-// ============= Fail =============
 // Email addCc(String email)
 // void addHeader(String name, String value)
 // Email addReplyTo(String email, String name)
 // void buildMimeMessage()
+
+// ============= Fail =============
 // String getHostName()
 // Session getMailSession()
 // Date getSentDate()
@@ -28,8 +33,12 @@ import org.junit.Test;
 
 public class EmailTest {
 
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+
 	private MockEmail email;
-	private final String[] VALID_EMAILS = { "test1@email.com", "test2@email.com", "test3@email.com" };
+	private final String[] VALID_TEST_EMAILS = { "test1@email.com", "test2@email.com", "test3@email.com" };
+	private final String[] VALID_TEST_NAMES = { "test1", "test2", "test3" };
 
 	@Before
 	public void setUp() throws Exception {
@@ -43,17 +52,17 @@ public class EmailTest {
 	 */
 	@Test
 	public void testAddBcc() throws Exception {
-		// expected list of addresses
+		// create the expected list of addresses
 		ArrayList<InternetAddress> expectedList = new ArrayList<InternetAddress>();
 
 		// fill expected list
-		for (String e : VALID_EMAILS)
+		for (String e : VALID_TEST_EMAILS)
 			expectedList.add(new InternetAddress(e));
 
 		// add valid e-mails to mock e-mail
-		email.addBcc(VALID_EMAILS);
+		email.addBcc(VALID_TEST_EMAILS);
 
-		// assert same contents
+		// assert expected results
 		assertEquals(email.getBccAddresses(), expectedList);
 	}
 
@@ -64,7 +73,17 @@ public class EmailTest {
 	 */
 	@Test
 	public void testAddCc() throws Exception {
-		fail("not yet implemented");
+		// create the expected list of addresses
+		ArrayList<InternetAddress> expectedList = new ArrayList<InternetAddress>();
+
+		// fill expected list and add valid e-mails to mock
+		for (String e : VALID_TEST_EMAILS) {
+			expectedList.add(new InternetAddress(e));
+			email.addCc(e);
+		}
+
+		// assert expected results
+		assertEquals(email.getCcAddresses(), expectedList);
 	}
 
 	/**
@@ -74,7 +93,21 @@ public class EmailTest {
 	 */
 	@Test
 	public void testAddHeader() throws Exception {
-		fail("not yet implemented");
+		// create the expected header
+		Map<String, String> expectedHeaders = new HashMap<String, String>();
+
+		// fill the expected header
+		expectedHeaders.put("X-Mailer", "Sendmail");
+		expectedHeaders.put("X-Priority", "1");
+		expectedHeaders.put("Disposition-Notification-To", "user@domain.net");
+
+		// add headers to mock
+		email.addHeader("X-Mailer", "Sendmail");
+		email.addHeader("X-Priority", "1");
+		email.addHeader("Disposition-Notification-To", "user@domain.net");
+
+		// assert expected results
+		assertEquals(email.headers, expectedHeaders);
 	}
 
 	/**
@@ -84,7 +117,17 @@ public class EmailTest {
 	 */
 	@Test
 	public void testAddReplyTo() throws Exception {
-		fail("not yet implemented");
+		// create expected list
+		ArrayList<InternetAddress> expectedAddresses = new ArrayList<InternetAddress>();
+
+		// fill expected Internet Address list and add replyTo to mock
+		for (int i = 0, size = VALID_TEST_EMAILS.length; i < size; i++) {
+			expectedAddresses.add(new InternetAddress(VALID_TEST_EMAILS[i], VALID_TEST_NAMES[i]));
+			email.addReplyTo(VALID_TEST_EMAILS[i], VALID_TEST_NAMES[i]);
+		}
+
+		// assert expected results
+		assertEquals(email.getReplyToAddresses(), expectedAddresses);
 	}
 
 	/**
@@ -94,7 +137,23 @@ public class EmailTest {
 	 */
 	@Test
 	public void testBuildMimeMessage() throws Exception {
-		fail("not yet implemented");
+		// set up mock to build MimeMessage
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+
+		// assert MimeMessage has not been built
+		assertTrue("MimeMessage already exists", email.getMimeMessage() == null);
+
+		// build MimeMessage
+		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+
+		// expect exception if we try to build MimeMessage after it has already been built
+		exception.expect(IllegalStateException.class);
+		email.buildMimeMessage();
 	}
 
 	/**
