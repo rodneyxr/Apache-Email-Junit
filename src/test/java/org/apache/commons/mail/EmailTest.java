@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -202,8 +203,29 @@ public class EmailTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testGetSentData() throws Exception {
-		fail("not yet implemented");
+	public void testGetSentDate() throws Exception {
+		// consider elapsed time between date calls
+		long startTime = System.nanoTime(); // save start time (nanoseconds for precision)
+		Date expectedDefaultDate = new Date(); // expected default sent date
+		Date defaultSentDate = email.getSentDate(); // get mock's default sent date
+		long endTime = System.nanoTime(); // save end time (nanoseconds for precision)
+
+		// approximate time between date calls (convert nanoseconds to milliseconds)
+		float deltaTime = (endTime - startTime) / 1000000f;
+		// if difference > deltaTime then dates are different
+		long difference = Math.abs(defaultSentDate.getTime() - expectedDefaultDate.getTime());
+
+		// if difference <= deltaTime then we accept that as an equal date
+		assertTrue("Unexpected default date", difference <= deltaTime);
+
+		// test a non-default date
+		Date expectedDate = new Date(0);
+
+		// set the mock's sent date
+		email.setSentDate(expectedDate);
+
+		// assert dates match
+		assertEquals(expectedDate, email.getSentDate());
 	}
 
 	/**
