@@ -30,10 +30,10 @@ import org.junit.rules.ExpectedException;
 // int getSocketConnectionTimeout()
 
 // Email setFrom(String email)
+// void updateContentType(String aContentType)
 
 // ============= Fail =============
 // String send()
-// void updateContentType(String aContentType)
 
 public class EmailTest {
 
