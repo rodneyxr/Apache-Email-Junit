@@ -285,7 +285,13 @@ public class EmailTest {
 	 */
 	@Test
 	public void testUpdateContentType() throws Exception {
-		fail("not yet implemented");
-	}
+		// create expected content type
+		String expectedContentType = "contentType1";
 
+		// set the mock email's content type
+		email.updateContentType(expectedContentType);
+
+		// assert mock's content type matches expected content type
+		assertEquals(expectedContentType, email.contentType);
+	}
 }
