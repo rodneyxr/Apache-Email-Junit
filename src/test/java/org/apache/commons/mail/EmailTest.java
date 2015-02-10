@@ -255,6 +255,13 @@ public class EmailTest {
 	 */
 	@Test
 	public void testSend() throws Exception {
+		// exception.expect(EmailException.class);
+		email.setHostName("test.host.com");
+		email.setFrom(VALID_TEST_EMAILS[0]);
+		email.addTo(VALID_TEST_EMAILS[1]);
+
+		// send the mock e-mail
+		// email.send();
 		fail("not yet implemented");
 	}
 
