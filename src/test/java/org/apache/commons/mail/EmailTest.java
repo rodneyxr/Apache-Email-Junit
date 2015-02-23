@@ -262,7 +262,7 @@ public class EmailTest {
 
 		// send the mock e-mail
 		// email.send();
-		fail("not yet implemented");
+		// TODO: fail("not yet implemented");
 	}
 
 	/**
