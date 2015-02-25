@@ -2,7 +2,6 @@ package org.apache.commons.mail;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,6 +70,23 @@ public class EmailTest {
 	}
 
 	/**
+	 * test addBcc(String... emails) for null input
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddBccNoEmails() throws Exception {
+		// create an empty string array to trigger exception
+		String[] emails = new String[] {};
+
+		// expect an email exception from null input
+		exception.expect(EmailException.class);
+		// add null String array
+		email.addBcc(emails);
+
+	}
+
+	/**
 	 * Email addCc(String email)
 	 * 
 	 * @throws Exception
@@ -88,6 +104,22 @@ public class EmailTest {
 
 		// assert expected results
 		assertEquals(expectedList, email.getCcAddresses());
+	}
+
+	/**
+	 * test addCcc(String email) for empty string
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddCcNoEmails() throws Exception {
+		// create an empty string to trigger exception
+		String emptyString = new String();
+
+		// expect an email exception from null input
+		exception.expect(EmailException.class);
+		// add null string
+		email.addCc(emptyString);
 	}
 
 	/**
@@ -115,6 +147,34 @@ public class EmailTest {
 	}
 
 	/**
+	 * test addHeader(String name, String value) for empty name string
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddHeaderEmptyName() throws Exception {
+		// expect IllegalArgumentException from empty name input
+		exception.expect(IllegalArgumentException.class);
+
+		// add header with empty name input
+		email.addHeader("", "SendMail");
+	}
+
+	/**
+	 * test addHeader(String name, String value) for empty name string
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddHeaderEmptyValue() throws Exception {
+		// expect IllegalArgumentException from empty value input
+		exception.expect(IllegalArgumentException.class);
+
+		// add header with empty value input
+		email.addHeader("X-Mailer", "");
+	}
+
+	/**
 	 * Email addReplyTo(String email, String name)
 	 * 
 	 * @throws Exception
@@ -132,6 +192,22 @@ public class EmailTest {
 
 		// assert expected results
 		assertEquals(expectedAddresses, email.getReplyToAddresses());
+	}
+
+	/**
+	 * test addReplyTo(String email) for empty string
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddReplyToEmptyEmail() throws Exception {
+		// create an empty string to trigger exception
+		String emptyString = new String();
+
+		// expect an email exception from null input
+		exception.expect(EmailException.class);
+		// add null string
+		email.addReplyTo(emptyString);
 	}
 
 	/**
@@ -195,6 +271,23 @@ public class EmailTest {
 
 		// assert the expected session was returned by the mock
 		assertEquals(expectedSession, email.getMailSession());
+	}
+
+	/**
+	 * test Session getMailSession() for empty host
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testGetMailSessionEmptyHost() throws Exception {
+		// set host name to null to throw an exception
+		email.setHostName(null);
+
+		// expect an EmailException
+		exception.expect(EmailException.class);
+
+		// this through throw an exception caused by null host name
+		email.getMailSession();
 	}
 
 	/**
