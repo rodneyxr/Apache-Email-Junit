@@ -3,6 +3,7 @@ package org.apache.commons.mail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -233,6 +234,41 @@ public class EmailTest {
 
 		// expect exception if we try to build MimeMessage after it has already been built
 		exception.expect(IllegalStateException.class);
+		email.buildMimeMessage();
+	}
+
+	/**
+	 * test void buildMimeMessage() when charset is empty
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageEmptyCharset() throws Exception {
+		// set up mock to build MimeMessage
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		email.setSubject("Test Subject");
+
+		// build MimeMessage
+		email.buildMimeMessage();
+	}
+
+	/**
+	 * test void buildMimeMessage() when charset is set
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageValidCharset() throws Exception {
+		// set up mock to build MimeMessage
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		email.setSubject("Test Subject");
+		email.setCharset(Charset.defaultCharset().toString());
+
+		// build MimeMessage
 		email.buildMimeMessage();
 	}
 
