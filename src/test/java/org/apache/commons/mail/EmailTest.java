@@ -278,13 +278,56 @@ public class EmailTest {
 	 */
 	@Test
 	// TODO: test when content isn't plain text
-	public void testBuildMimeMessageValidContent() throws Exception {
+	public void testBuildMimeMessageTextPlainContent() throws Exception {
 		// set up mock to build MimeMessage
 		email.setHostName("test.hostname.com");
 		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
 		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
 		email.setSubject("Test Subject");
 		email.setContent("Test Content", EmailConstants.TEXT_PLAIN);
+
+		// build MimeMessage
+		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * test void buildMimeMessage() when valid content is set
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageValidContent() throws Exception {
+		// set up mock to build MimeMessage
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		email.setSubject("Test Subject");
+		email.setContent("Test Content HTML", EmailConstants.TEXT_HTML);
+
+		// build MimeMessage
+		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * test void buildMimeMessage() when valid content is set
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	// TODO: test when content isn't plain text
+	public void testBuildMimeMessageEmptyContent() throws Exception {
+		// set up mock to build MimeMessage
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		email.setSubject("Test Subject");
+		email.setContent(new InternetAddress(), EmailConstants.TEXT_SUBTYPE_HTML);
 
 		// build MimeMessage
 		email.buildMimeMessage();
@@ -308,6 +351,35 @@ public class EmailTest {
 
 		// assert hostname matches what was set
 		assertEquals(hostname, email.getHostName());
+	}
+
+	/**
+	 * String getHostName()
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testGetHostNameValidSession() throws Exception {
+		// create the expected hostname
+		String hostname = "test.hostname.com";
+
+		// create the session to
+		Session session = Session.getInstance(new Properties());
+		email.setMailSession(session);
+
+		// assert hostname matches what was set
+		assertEquals(session.getProperty(Email.MAIL_HOST), email.getHostName());
+	}
+
+	/**
+	 * String getHostName()
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testGetHostNameNull() throws Exception {
+		// assert hostname returns null
+		assertEquals(null, email.getHostName());
 	}
 
 	/**
