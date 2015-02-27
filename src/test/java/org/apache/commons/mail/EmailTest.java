@@ -43,6 +43,8 @@ public class EmailTest {
 	private MockEmail email;
 	private final String[] VALID_TEST_EMAILS = { "test1@email.com", "test2@email.com", "test3@email.com" };
 	private final String[] VALID_TEST_NAMES = { "test1", "test2", "test3" };
+	private final String[] EMPTY_STRINGS = { "", "", "" };
+	private final String EMPTY_STRING = "";
 
 	@Before
 	public void setUp() throws Exception {
@@ -77,13 +79,10 @@ public class EmailTest {
 	 */
 	@Test
 	public void testAddBccNoEmails() throws Exception {
-		// create an empty string array to trigger exception
-		String[] emails = new String[] {};
-
 		// expect an email exception from null input
 		exception.expect(EmailException.class);
 		// add null String array
-		email.addBcc(emails);
+		email.addBcc(EMPTY_STRINGS);
 
 	}
 
@@ -108,19 +107,16 @@ public class EmailTest {
 	}
 
 	/**
-	 * test addCcc(String email) for empty string
+	 * test addCc(String email) for empty string
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testAddCcNoEmails() throws Exception {
-		// create an empty string to trigger exception
-		String emptyString = new String();
-
 		// expect an email exception from null input
 		exception.expect(EmailException.class);
 		// add null string
-		email.addCc(emptyString);
+		email.addCc(EMPTY_STRING);
 	}
 
 	/**
@@ -158,7 +154,7 @@ public class EmailTest {
 		exception.expect(IllegalArgumentException.class);
 
 		// add header with empty name input
-		email.addHeader("", "SendMail");
+		email.addHeader(EMPTY_STRING, "SendMail");
 	}
 
 	/**
@@ -172,7 +168,7 @@ public class EmailTest {
 		exception.expect(IllegalArgumentException.class);
 
 		// add header with empty value input
-		email.addHeader("X-Mailer", "");
+		email.addHeader("X-Mailer", EMPTY_STRING);
 	}
 
 	/**
@@ -202,13 +198,10 @@ public class EmailTest {
 	 */
 	@Test
 	public void testAddReplyToEmptyEmail() throws Exception {
-		// create an empty string to trigger exception
-		String emptyString = new String();
-
 		// expect an email exception from null input
 		exception.expect(EmailException.class);
 		// add null string
-		email.addReplyTo(emptyString);
+		email.addReplyTo(EMPTY_STRING);
 	}
 
 	/**
@@ -243,7 +236,7 @@ public class EmailTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testBuildMimeMessageEmptyCharset() throws Exception {
+	public void testBuildMimeMessageValidSubject() throws Exception {
 		// set up mock to build MimeMessage
 		email.setHostName("test.hostname.com");
 		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
@@ -252,6 +245,9 @@ public class EmailTest {
 
 		// build MimeMessage
 		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
 	}
 
 	/**
@@ -270,6 +266,31 @@ public class EmailTest {
 
 		// build MimeMessage
 		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * test void buildMimeMessage() when valid content is set
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	// TODO: test when content isn't plain text
+	public void testBuildMimeMessageValidContent() throws Exception {
+		// set up mock to build MimeMessage
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		email.setSubject("Test Subject");
+		email.setContent("Test Content", EmailConstants.TEXT_PLAIN);
+
+		// build MimeMessage
+		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
 	}
 
 	/**
@@ -317,7 +338,7 @@ public class EmailTest {
 	@Test
 	public void testGetMailSessionEmptyHost() throws Exception {
 		// set host name to null to throw an exception
-		email.setHostName(null);
+		email.setHostName(EMPTY_STRING);
 
 		// expect an EmailException
 		exception.expect(EmailException.class);
