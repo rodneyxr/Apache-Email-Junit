@@ -3,7 +3,6 @@ package org.apache.commons.mail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,6 +44,14 @@ public class EmailTest {
 	private final String[] VALID_TEST_NAMES = { "test1", "test2", "test3" };
 	private final String[] EMPTY_STRINGS = { "", "", "" };
 	private final String EMPTY_STRING = "";
+
+	private void prepMimeMessage() throws Exception {
+		// set up mock to build MimeMessage
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		email.setSubject("Test Subject");
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -237,11 +244,7 @@ public class EmailTest {
 	 */
 	@Test
 	public void testBuildMimeMessageValidSubject() throws Exception {
-		// set up mock to build MimeMessage
-		email.setHostName("test.hostname.com");
-		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
-		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
-		email.setSubject("Test Subject");
+		prepMimeMessage();
 
 		// build MimeMessage
 		email.buildMimeMessage();
@@ -257,12 +260,8 @@ public class EmailTest {
 	 */
 	@Test
 	public void testBuildMimeMessageValidCharset() throws Exception {
-		// set up mock to build MimeMessage
-		email.setHostName("test.hostname.com");
-		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
-		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
-		email.setSubject("Test Subject");
-		email.setCharset(Charset.defaultCharset().toString());
+		prepMimeMessage();
+		email.setCharset(EmailConstants.UTF_8);
 
 		// build MimeMessage
 		email.buildMimeMessage();
@@ -272,18 +271,13 @@ public class EmailTest {
 	}
 
 	/**
-	 * test void buildMimeMessage() when valid content is set
+	 * test void buildMimeMessage() when content type is a String
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	// TODO: test when content isn't plain text
 	public void testBuildMimeMessageTextPlainContent() throws Exception {
-		// set up mock to build MimeMessage
-		email.setHostName("test.hostname.com");
-		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
-		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
-		email.setSubject("Test Subject");
+		prepMimeMessage();
 		email.setContent("Test Content", EmailConstants.TEXT_PLAIN);
 
 		// build MimeMessage
@@ -300,12 +294,8 @@ public class EmailTest {
 	 */
 	@Test
 	public void testBuildMimeMessageValidContent() throws Exception {
-		// set up mock to build MimeMessage
-		email.setHostName("test.hostname.com");
-		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
-		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
-		email.setSubject("Test Subject");
-		email.setContent("Test Content HTML", EmailConstants.TEXT_HTML);
+		prepMimeMessage();
+		email.setContent(new EmailAttachment(), "image/jpeg");
 
 		// build MimeMessage
 		email.buildMimeMessage();
@@ -320,17 +310,54 @@ public class EmailTest {
 	 * @throws Exception
 	 */
 	@Test
-	// TODO: test when content isn't plain text
 	public void testBuildMimeMessageEmptyContent() throws Exception {
-		// set up mock to build MimeMessage
-		email.setHostName("test.hostname.com");
-		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
-		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
-		email.setSubject("Test Subject");
+		prepMimeMessage();
 		email.setContent(new InternetAddress(), EmailConstants.TEXT_SUBTYPE_HTML);
 
 		// build MimeMessage
 		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * test void buildMimeMessage() when valid content is set
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageNullBody() throws Exception {
+		prepMimeMessage();
+		email.setContent(new InternetAddress(), EmailConstants.TEXT_SUBTYPE_HTML);
+
+		// build MimeMessage
+		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * test void buildMimeMessage() when valid content is set
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageNoFromAddress() throws Exception {
+		exception.expect(EmailException.class);
+		email.setHostName("test.hostname.com");
+		// build MimeMessage
+		email.buildMimeMessage();
+		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
+		// build MimeMessage
+		email.buildMimeMessage();
+		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		// build MimeMessage
+		//email.buildMimeMessage();
+		email.setSubject("Test Subject");
+		// build MimeMessage
+		//email.buildMimeMessage();
 
 		// assert build was successful
 		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
@@ -360,9 +387,6 @@ public class EmailTest {
 	 */
 	@Test
 	public void testGetHostNameValidSession() throws Exception {
-		// create the expected hostname
-		String hostname = "test.hostname.com";
-
 		// create the session to
 		Session session = Session.getInstance(new Properties());
 		email.setMailSession(session);
