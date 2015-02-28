@@ -1,6 +1,7 @@
 package org.apache.commons.mail;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -9,8 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.mail.Authenticator;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMultipart;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,21 +21,20 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 // ============= Pass =============
-// Email addBcc(String... emails)
-// Email addCc(String email)
-// void addHeader(String name, String value)
-// Email addReplyTo(String email, String name)
-// void buildMimeMessage()
-// String getHostName()
-// Session getMailSession()
-// Date getSentDate()
-// int getSocketConnectionTimeout()
-
-// Email setFrom(String email)
-// void updateContentType(String aContentType)
+// 100%: 	Email addBcc(String... emails)
+// 100%:	Email addCc(String email)
+// 100%:	void addHeader(String name, String value)
+// 100%:	Email addReplyTo(String email, String name)
+// 94.2%	void buildMimeMessage()
+// 100%:	String getHostName()
+// 100%:	Session getMailSession()
+// 100%:	Date getSentDate()
+// 100%:	int getSocketConnectionTimeout()
+// 100%:	String send()
+// 100%:	Email setFrom(String email)
+// 100%:	void updateContentType(String aContentType)
 
 // ============= Fail =============
-// String send()
 
 public class EmailTest {
 
@@ -77,6 +79,38 @@ public class EmailTest {
 
 		// assert expected results
 		assertEquals(expectedList, email.getBccAddresses());
+	}
+
+	/**
+	 * Email addBcc(String... emails)
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddBccNullEmails() throws Exception {
+		String[] nullEmails = null;
+
+		// expect an exception from an empty string array
+		exception.expect(EmailException.class);
+
+		// add empty e-mails to mock e-mail
+		email.addBcc(nullEmails);
+	}
+
+	/**
+	 * Email addBcc(String... emails)
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testAddBccEmptyEmails() throws Exception {
+		String[] emptyEmails = {};
+
+		// expect an exception from an empty string array
+		exception.expect(EmailException.class);
+
+		// add empty e-mails to mock e-mail
+		email.addBcc(emptyEmails);
 	}
 
 	/**
@@ -221,7 +255,10 @@ public class EmailTest {
 		// set up mock to build MimeMessage
 		email.setHostName("test.hostname.com");
 		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
-		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
+		email.addCc(VALID_TEST_EMAILS[0]);
+		email.addBcc(VALID_TEST_EMAILS[0]);
+		email.addReplyTo(VALID_TEST_EMAILS[0]);
+		email.addHeader("X-Mailer", "Sendmail");
 
 		// assert MimeMessage has not been built
 		assertTrue("MimeMessage already exists", email.getMimeMessage() == null);
@@ -238,8 +275,59 @@ public class EmailTest {
 	}
 
 	/**
-	 * test void buildMimeMessage() when charset is empty
+	 * void buildMimeMessage()
 	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageBodyWithoutContent() throws Exception {
+		prepMimeMessage();
+		email.emailBody = new MimeMultipart();
+
+		// build MimeMessage
+		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * void buildMimeMessage()
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageValidContentType() throws Exception {
+		prepMimeMessage();
+		// email.setContent("Test HTML Content", EmailConstants.TEXT_HTML);
+		email.emailBody = new MimeMultipart();
+		email.contentType = EmailConstants.TEXT_HTML;
+
+		// build MimeMessage
+		email.buildMimeMessage();
+
+		// assert build was successful
+		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * void buildMimeMessage() with no receivers specified
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageNoReceivers() throws Exception {
+		// expect exception thrown when no receivers are specified
+		exception.expect(EmailException.class);
+
+		email.setHostName("test.hostname.com");
+		email.setFrom(VALID_TEST_EMAILS[0]);
+		email.buildMimeMessage();
+	}
+
+	/**
+	 * test void buildMimeMessage() when charset is empty
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -255,7 +343,7 @@ public class EmailTest {
 
 	/**
 	 * test void buildMimeMessage() when charset is set
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -272,7 +360,7 @@ public class EmailTest {
 
 	/**
 	 * test void buildMimeMessage() when content type is a String
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -289,7 +377,7 @@ public class EmailTest {
 
 	/**
 	 * test void buildMimeMessage() when valid content is set
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -306,7 +394,7 @@ public class EmailTest {
 
 	/**
 	 * test void buildMimeMessage() when valid content is set
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -323,7 +411,7 @@ public class EmailTest {
 
 	/**
 	 * test void buildMimeMessage() when valid content is set
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -339,8 +427,8 @@ public class EmailTest {
 	}
 
 	/**
-	 * test void buildMimeMessage() when valid content is set
-	 * 
+	 * test void buildMimeMessage() with no from Address
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -349,18 +437,29 @@ public class EmailTest {
 		email.setHostName("test.hostname.com");
 		// build MimeMessage
 		email.buildMimeMessage();
+
 		email.setFrom(VALID_TEST_EMAILS[0], VALID_TEST_NAMES[0]);
-		// build MimeMessage
 		email.buildMimeMessage();
-		email.addTo(VALID_TEST_EMAILS[1], VALID_TEST_NAMES[1]);
-		// build MimeMessage
-		//email.buildMimeMessage();
-		email.setSubject("Test Subject");
-		// build MimeMessage
-		//email.buildMimeMessage();
 
 		// assert build was successful
 		assertTrue("MimeMessage is null", email.getMimeMessage() != null);
+	}
+
+	/**
+	 * test void buildMimeMessage() with popBeforeSmtp set true and invalid Authentication
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testBuildMimeMessageStoreInvalidAuth() throws Exception {
+		prepMimeMessage();
+		email.popBeforeSmtp = true;
+
+		// expect Messaging Exception due to invalid authentication
+		exception.expectMessage("AuthenticationFailedException");
+
+		// build the MimeMessage
+		email.buildMimeMessage();
 	}
 
 	/**
@@ -408,7 +507,7 @@ public class EmailTest {
 
 	/**
 	 * Session getMailSession()
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -424,6 +523,31 @@ public class EmailTest {
 
 		// assert the expected session was returned by the mock
 		assertEquals(expectedSession, email.getMailSession());
+	}
+
+	/**
+	 * test Session getMailSession() for empty host
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testGetMailSession2() throws Exception {
+		email.setHostName("test.hostname.com");
+		email.setStartTLSEnabled(true);
+		email.setStartTLSRequired(true);
+		email.setSendPartial(true);
+		email.authenticator = new Authenticator() {
+		};
+		email.setSSLOnConnect(true);
+		email.setSSLCheckServerIdentity(true);
+		email.setBounceAddress(VALID_TEST_EMAILS[0]);
+		email.setSocketTimeout(0);
+		email.setSocketConnectionTimeout(0);
+
+		email.getMailSession();
+
+		// assert the expected session was returned by the mock
+		assertFalse("Session should not be null", email.getMailSession().equals(null));
 	}
 
 	/**
@@ -501,14 +625,16 @@ public class EmailTest {
 	 */
 	@Test
 	public void testSend() throws Exception {
-		// exception.expect(EmailException.class);
-		email.setHostName("test.host.com");
-		email.setFrom(VALID_TEST_EMAILS[0]);
-		email.addTo(VALID_TEST_EMAILS[1]);
+		// set up mock to build MimeMessage
+		prepMimeMessage();
+
+		email.socketConnectionTimeout = 1;
 
 		// send the mock e-mail
-		// email.send();
-		// TODO: fail("not yet implemented");
+		email.send();
+
+		// assert the message was sent
+		assertEquals("Message does not match", email.message, FakeTransport.getLastMessageReceived());
 	}
 
 	/**
@@ -547,4 +673,59 @@ public class EmailTest {
 		// assert mock's content type matches expected content type
 		assertEquals(expectedContentType, email.contentType);
 	}
+
+	/**
+	 * void updateContentType(String aContentType)
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testUpdateContentTypeTextSpace() throws Exception {
+		// create expected content type
+		String expectedContentType = EmailConstants.TEXT_PLAIN + "[; charset=UTF-8] ";
+		email.setCharset(EmailConstants.UTF_8);
+
+		// set the mock email's content type
+		email.updateContentType(expectedContentType);
+
+		// assert mock's content type matches expected content type
+		assertEquals(expectedContentType, email.contentType);
+	}
+
+	/**
+	 * void updateContentType(String aContentType)
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testUpdateContentTypeTextNoSpace() throws Exception {
+		// create expected content type
+		String expectedContentType = EmailConstants.TEXT_PLAIN + "[; charset=UTF-8]";
+		email.setCharset(EmailConstants.UTF_8);
+
+		// set the mock email's content type
+		email.updateContentType(expectedContentType);
+
+		// assert mock's content type matches expected content type
+		assertEquals(expectedContentType, email.contentType);
+	}
+
+	/**
+	 * void updateContentType(String aContentType)
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testUpdateContentTypeValidTextAndCharset() throws Exception {
+		// create expected content type
+		String expectedContentType = EmailConstants.TEXT_PLAIN;
+		email.setCharset(EmailConstants.UTF_8);
+
+		// set the mock email's content type
+		email.updateContentType(EmailConstants.TEXT_PLAIN);
+
+		// assert mock's content type matches expected content type
+		assertEquals(expectedContentType + "; charset=UTF-8", email.contentType);
+	}
+
 }
