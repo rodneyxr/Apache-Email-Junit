@@ -36,6 +36,11 @@ import org.junit.rules.ExpectedException;
 
 // ============= Fail =============
 
+/**
+ * 
+ * @author Rodney Rodriguez
+ *
+ */
 public class EmailTest {
 
 	@Rule
